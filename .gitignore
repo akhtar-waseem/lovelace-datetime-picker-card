@@ -3,6 +3,7 @@ dist/
 .devcontainer/
 README.md
 jest.config.js
+devtools/homeassistant/
 
 devtools/homeassistant/*
 !devtools/homeassistant/configuration.yaml
