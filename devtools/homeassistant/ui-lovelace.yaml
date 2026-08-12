@@ -1,155 +1,57 @@
 title: Home
 views:
-  - title: dev
+  - title: Main Test Suite
     path: dev
     cards:
       - type: vertical-stack
         cards:
           - type: markdown
-            content: "# 🕰 Time Picker Card dev"
+            content: "# 🕰 DateTime Picker Card - Testing Suite"
           - type: entities
             entities:
               - input_datetime.test_date_time
+              - input_datetime.test_date_only
+              - input_datetime.test_time_only
+
+          - type: markdown
+            content: "### 1. Date & Time Entities (Combined)"
           - type: horizontal-stack
             cards:
               - type: custom:datetime-picker-card
                 entity: input_datetime.test_date_time
-                name: With tap actions
-                hour_mode: 24
-                hour_step: 2
-                tap_action:
-                  action: call-service
-                  service: logbook.log
-                  service_data:
-                    name: "Time picker card · Tap Action"
-                    message: "Debug"
-                double_tap_action:
-                  action: call-service
-                  service: logbook.log
-                  service_data:
-                    name: "Time picker card · Double Tap Action"
-                    message: "Debug"
-                hold_action:
-                  action: call-service
-                  service: logbook.log
-                  service_data:
-                    name: "Time picker card · Hold action"
-                    message: "Debug"
+                name: Date & Time - Default
               - type: custom:datetime-picker-card
-                name: Hour mode 12, thin, single, hidden name
                 entity: input_datetime.test_date_time
-                hour_mode: 12
-                layout:
-                  hour_mode: single
-                  thin: true
-                hide:
-                  name: true
-          - type: custom:datetime-picker-card
-            name: delayed
-            entity: input_datetime.test_date_time
-            delay: 1000
-            hour_mode: 12
-            layout:
-              hour_mode: single
-              thin: true
+                name: Date & Time - Custom Name
 
-          - type: custom:datetime-picker-card
-            entity: input_datetime.test_date_time
-            name: Thin
-            layout:
-              thin: true
-          - type: custom:datetime-picker-card
-            entity: input_datetime.test_date_time
-            name: Hidden seconds
-            hide:
-              seconds: false
-
+          - type: markdown
+            content: "### 2. Date Only Entities"
           - type: horizontal-stack
             cards:
               - type: custom:datetime-picker-card
-                entity: input_datetime.test_date_time
-                name: Hidden name
-                hour_mode: 12
+                entity: input_datetime.test_date_only
+                name: Date Only - Standard
+              - type: custom:datetime-picker-card
+                entity: input_datetime.test_date_only
+                name: Date Only - Hidden Name
                 hide:
                   name: true
+
+          - type: markdown
+            content: "### 3. Time Only Entities"
+          - type: horizontal-stack
+            cards:
               - type: custom:datetime-picker-card
-                entity: input_datetime.test_date_time
-                name: Linked, single hour mode, hidden name
-                link_values: true
-                hour_mode: 12
-                hour_step: 2
-                minute_step: 3
-                layout:
-                  hour_mode: single
+                entity: input_datetime.test_time_only
+                name: Time Only - Standard
+              - type: custom:datetime-picker-card
+                entity: input_datetime.test_time_only
+                name: Time Only - Hidden Icon
                 hide:
-                  name: false
+                  icon: true
 
+          - type: markdown
+            content: "### 4. Edge & Error Cases"
           - type: custom:datetime-picker-card
-            entity: input_datetime.test_date
-            name: Error
-
-  - title: name inside
-    path: name-inside
-    cards:
-      - type: custom:datetime-picker-card
-        entity: input_datetime.test_date_time
-        name: Inside, controls right
-        hour_mode: 12
-        layout:
-          name: inside
-          align_controls: right
-      - type: horizontal-stack
-        cards:
-          - type: custom:datetime-picker-card
-            entity: input_datetime.test_date_time
-            name: Inside, hidden name
-            layout:
-              name: inside
-            hide:
-              name: true
-          - type: custom:datetime-picker-card
-            entity: input_datetime.test_date_time
-            name: Inside, hidden icon
-            layout:
-              name: inside
-            hide:
-              icon: true
-
-  - title: embedded
-    path: embedded
-    cards:
-      - type: vertical-stack
-        cards:
-
-          - type: entities
-            entities:
-              - input_datetime.test_date_time
-              - type: custom:datetime-picker-card
-                entity: input_datetime.test_date_time
-                name: Embedded thin
-                hour_mode: 24
-                hour_step: 2
-                layout:
-                  embedded: true
-                  thin: true
-
-              - type: custom:datetime-picker-card
-                entity: input_datetime.test_date_time
-                name: Inside
-                hour_mode: 24
-                hour_step: 2
-                layout:
-                  name: inside
-
-              - type: custom:datetime-picker-card
-                entity: input_datetime.test_date_time
-                hour_mode: 12
-                layout:
-                  hour_mode: single
-                hide:
-                  name: true
-              - type: custom:datetime-picker-card
-                entity: input_datetime.test_date_time
-                hour_mode: 12
-                layout:
-                  hour_mode: single
+            entity: input_datetime.non_existent_entity
+            name: Invalid Entity Test

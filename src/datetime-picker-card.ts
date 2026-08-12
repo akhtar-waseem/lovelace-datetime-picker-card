@@ -28,42 +28,57 @@ export class DateTimePickerCard extends LitElement {
     this._config = config;
   }
 
-  render(): TemplateResult {
-    if (!this.hass || !this._config) return html``;
+render(): TemplateResult {
+  if (!this.hass || !this._config) return html``;
 
-    const stateObj = this.hass.states[this._config.entity];
-    const name = this._config.name || stateObj?.attributes?.friendly_name || 'Date & Time';
-    const rawState = stateObj ? stateObj.state : 'Unknown';
+  const stateObj = this.hass.states[this._config.entity];
+  const name = this._config.name || stateObj?.attributes?.friendly_name || 'Date & Time';
+  const rawState = stateObj ? stateObj.state : 'Unknown';
 
-    // Format display string cleanly: "YYYY-MM-DD • HH:MM:SS"
-    const [currentDate, currentTime] = rawState.includes(' ')
+  // Read entity capabilities (default to true if missing)
+  const hasDate = stateObj?.attributes?.has_date ?? true;
+  const hasTime = stateObj?.attributes?.has_time ?? true;
+
+  // Derive date and time parts dynamically based on attributes
+  let currentDate = '';
+  let currentTime = '';
+  let formattedValue = rawState;
+
+  if (hasDate && hasTime) {
+    [currentDate, currentTime] = rawState.includes(' ')
       ? rawState.split(' ')
       : [rawState, '12:00:00'];
-
-    const formattedValue = rawState.includes(' ')
-      ? `${currentDate}  •  ${currentTime}`
-      : rawState;
-
-    return html`
-      <ha-card @click=${this._openDialog}>
-        <div class="card-content">
-          <ha-icon icon="mdi:calendar-clock"></ha-icon>
-          <div class="info">
-            <div class="name">${name}</div>
-            <div class="value">${formattedValue}</div>
-          </div>
-        </div>
-      </ha-card>
-
-      <datetime-dialog
-        .open=${this._dialogOpen}
-        .initialDate=${currentDate}
-        .initialTime=${currentTime}
-        @dialog-closed=${this._closeDialog}
-        @datetime-saved=${this._handleSave}
-      ></datetime-dialog>
-    `;
+    formattedValue = rawState.includes(' ') ? `${currentDate}  •  ${currentTime}` : rawState;
+  } else if (hasDate) {
+    currentDate = rawState;
+    formattedValue = currentDate;
+  } else if (hasTime) {
+    currentTime = rawState;
+    formattedValue = currentTime;
   }
+
+  return html`
+    <ha-card @click=${this._openDialog}>
+      <div class="card-content">
+        <ha-icon icon="mdi:calendar-clock"></ha-icon>
+        <div class="info">
+          <div class="name">${name}</div>
+          <div class="value">${formattedValue}</div>
+        </div>
+      </div>
+    </ha-card>
+
+    <datetime-dialog
+      .open=${this._dialogOpen}
+      .hasDate=${hasDate}
+      .hasTime=${hasTime}
+      .initialDate=${currentDate}
+      .initialTime=${currentTime}
+      @datetime-dialog-closed=${this._closeDialog}
+      @datetime-saved=${this._handleSave}
+    ></datetime-dialog>
+  `;
+}
 
   private _openDialog(): void {
     this._dialogOpen = true;
@@ -75,11 +90,12 @@ export class DateTimePickerCard extends LitElement {
 
   private _handleSave(e: CustomEvent<{ date: string; time: string }>): void {
     const { date, time } = e.detail;
-    this.hass.callService('input_datetime', 'set_datetime', {
+    const payload: Record<string, string> = {
       entity_id: this._config.entity,
-      date,
-      time,
-    });
+    };
+    if (date) payload.date = date;
+    if (time) payload.time = time;
+    this.hass.callService('input_datetime', 'set_datetime', payload);
   }
 
   static styles = css`

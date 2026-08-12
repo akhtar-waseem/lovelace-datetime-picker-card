@@ -6,6 +6,8 @@ import './time-picker-step';
 @customElement('datetime-dialog')
 export class DateTimeDialog extends LitElement {
   @property({ type: Boolean }) public open: boolean = false;
+  @property({ type: Boolean }) public hasDate: boolean = true;
+  @property({ type: Boolean }) public hasTime: boolean = true;
   @property({ type: String }) public initialDate: string = '';
   @property({ type: String }) public initialTime: string = '';
 
@@ -15,7 +17,8 @@ export class DateTimeDialog extends LitElement {
 
   protected updated(changedProperties: Map<string, unknown>): void {
     if (changedProperties.has('open') && this.open) {
-      this._step = 'date';
+      // Direct step selection depending on entity attributes
+      this._step = this.hasDate ? 'date' : 'time';
       this._tempDate = this.initialDate;
       this._tempTime = this.initialTime || '12:00:00';
     }
@@ -24,11 +27,13 @@ export class DateTimeDialog extends LitElement {
   render(): TemplateResult {
     if (!this.open) return html``;
 
+    const isBoth = this.hasDate && this.hasTime;
+
     return html`
       <ha-dialog
         open
         heading=${this._step === 'date' ? 'Select Date' : 'Select Time'}
-        @closed=${this._close}
+        @closed=${this._handleHaDialogClosed}
       >
         <div class="dialog-body">
           ${this._step === 'date'
@@ -49,7 +54,7 @@ export class DateTimeDialog extends LitElement {
 
           <!-- Explicit Navigation / Action Buttons -->
           <div class="button-row">
-            ${this._step === 'time'
+            ${isBoth && this._step === 'time'
               ? html`
                   <button class="btn btn-secondary" @click=${() => (this._step = 'date')}>
                     Back
@@ -61,7 +66,7 @@ export class DateTimeDialog extends LitElement {
                   </button>
                 `}
 
-            ${this._step === 'date'
+            ${isBoth && this._step === 'date'
               ? html`
                   <button class="btn btn-primary" @click=${() => (this._step = 'time')}>
                     Next
@@ -78,16 +83,23 @@ export class DateTimeDialog extends LitElement {
     `;
   }
 
+  private _handleHaDialogClosed(e: Event): void {
+    e.stopPropagation();
+    this._close();
+  }
+
   private _close(): void {
-    this.dispatchEvent(new CustomEvent('dialog-closed', { bubbles: true, composed: true }));
+    this.dispatchEvent(
+      new CustomEvent('datetime-dialog-closed', { bubbles: true, composed: true })
+    );
   }
 
   private _save(): void {
     this.dispatchEvent(
       new CustomEvent('datetime-saved', {
         detail: {
-          date: this._tempDate,
-          time: this._tempTime,
+          date: this.hasDate ? this._tempDate : undefined,
+          time: this.hasTime ? this._tempTime : undefined,
         },
         bubbles: true,
         composed: true,

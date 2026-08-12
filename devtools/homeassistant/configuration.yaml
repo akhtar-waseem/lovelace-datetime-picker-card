@@ -10,7 +10,7 @@ logger:
     hacs: debug
 
 lovelace:
-  mode: yaml
+  resource_mode: yaml
   resources:
     - type: module
       url: /hacsfiles/button-card/button-card.js
