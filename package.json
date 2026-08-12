@@ -39,13 +39,14 @@
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@rollup/plugin-typescript": "^12.1.1",
     "@types/jest": "^29.2.1",
-    "typescript-eslint": "^8.0.0",
     "eslint": "^9.0.0",
     "jest": "^29.2.2",
     "prettier": "^3.3.3",
     "rollup": "^4.24.4",
+    "rollup-plugin-lit-css": "^6.0.1",
     "rollup-plugin-serve": "^2.0.1",
     "ts-jest": "^29.0.3",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.0.0"
   }
 }

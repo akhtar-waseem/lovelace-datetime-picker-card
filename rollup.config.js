@@ -1,3 +1,5 @@
+import litCssPlugin from 'rollup-plugin-lit-css';
+const litCss = litCssPlugin.default || litCssPlugin;
 import nodeResolve from '@rollup/plugin-node-resolve';
 import json from '@rollup/plugin-json';
 import typescript from '@rollup/plugin-typescript';
@@ -24,6 +26,7 @@ export default {
     format: 'es',
   },
   plugins: [
+    litCss({ include: 'src/**/*.css' }),
     typescript({ exclude: ['test/**/*'] }),
     nodeResolve(),
     json(),

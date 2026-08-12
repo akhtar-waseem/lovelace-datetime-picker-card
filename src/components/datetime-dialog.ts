@@ -1,5 +1,6 @@
-import { LitElement, html, css, TemplateResult } from 'lit';
+import { LitElement, html, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import styles from '../css/datetime-dialog.css';
 import './date-picker-step';
 import './time-picker-step';
 
@@ -15,9 +16,10 @@ export class DateTimeDialog extends LitElement {
   @state() private _tempDate: string = '';
   @state() private _tempTime: string = '';
 
+  static styles = styles;
+
   protected updated(changedProperties: Map<string, unknown>): void {
     if (changedProperties.has('open') && this.open) {
-      // Direct step selection depending on entity attributes
       this._step = this.hasDate ? 'date' : 'time';
       this._tempDate = this.initialDate;
       this._tempTime = this.initialTime || '12:00:00';
@@ -36,23 +38,24 @@ export class DateTimeDialog extends LitElement {
         @closed=${this._handleHaDialogClosed}
       >
         <div class="dialog-body">
-          ${this._step === 'date'
-            ? html`
-                <date-picker-step
-                  .value=${this._tempDate}
-                  @date-changed=${(e: CustomEvent<{ value: string }>) =>
-                    (this._tempDate = e.detail.value)}
-                ></date-picker-step>
-              `
-            : html`
-                <time-picker-step
-                  .value=${this._tempTime}
-                  @time-changed=${(e: CustomEvent<{ value: string }>) =>
-                    (this._tempTime = e.detail.value)}
-                ></time-picker-step>
-              `}
+          <div class="step-content">
+            ${this._step === 'date'
+              ? html`
+                  <date-picker-step
+                    .value=${this._tempDate}
+                    @date-changed=${(e: CustomEvent<{ value: string }>) =>
+                      (this._tempDate = e.detail.value)}
+                  ></date-picker-step>
+                `
+              : html`
+                  <time-picker-step
+                    .value=${this._tempTime}
+                    @time-changed=${(e: CustomEvent<{ value: string }>) =>
+                      (this._tempTime = e.detail.value)}
+                  ></time-picker-step>
+                `}
+          </div>
 
-          <!-- Explicit Navigation / Action Buttons -->
           <div class="button-row">
             ${isBoth && this._step === 'time'
               ? html`
@@ -107,47 +110,4 @@ export class DateTimeDialog extends LitElement {
     );
     this._close();
   }
-
-  static styles = css`
-    .dialog-body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 12px 8px;
-      min-width: 260px;
-    }
-    .button-row {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      width: 100%;
-      margin-top: 20px;
-      padding-top: 12px;
-      border-top: 1px solid var(--divider-color, #333);
-    }
-    .btn {
-      padding: 8px 18px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      border-radius: 8px;
-      cursor: pointer;
-      border: none;
-      transition: background 0.2s ease;
-    }
-    .btn-secondary {
-      background: transparent;
-      color: var(--primary-text-color, #fff);
-      border: 1px solid var(--divider-color, #555);
-    }
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.08);
-    }
-    .btn-primary {
-      background: var(--primary-color, #03a9f4);
-      color: #ffffff;
-    }
-    .btn-primary:hover {
-      opacity: 0.9;
-    }
-  `;
 }

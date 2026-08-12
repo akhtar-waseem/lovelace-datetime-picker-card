@@ -1,5 +1,6 @@
-import { LitElement, html, css, TemplateResult } from 'lit';
+import { LitElement, html, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import styles from '../css/time-picker-step.css';
 
 @customElement('time-picker-step')
 export class TimePickerStep extends LitElement {
@@ -10,6 +11,8 @@ export class TimePickerStep extends LitElement {
   @state() private _selectedMinute: number = 0;
   @state() private _period: 'AM' | 'PM' = 'PM';
   @state() private _isDragging: boolean = false;
+
+  static styles = styles;
 
   protected firstUpdated(): void {
     if (this.value) {
@@ -96,7 +99,6 @@ export class TimePickerStep extends LitElement {
     const displayHour = String(this._selectedHour).padStart(2, '0');
     const displayMin = String(this._selectedMinute).padStart(2, '0');
 
-    // Calculate rotation angle for clock hand
     const rotationDeg =
       this._mode === 'hours'
         ? (this._selectedHour % 12) * 30
@@ -104,7 +106,6 @@ export class TimePickerStep extends LitElement {
 
     return html`
       <div class="clock-container">
-        <!-- Display Header -->
         <div class="time-header">
           <div class="time-digits">
             <span
@@ -138,14 +139,12 @@ export class TimePickerStep extends LitElement {
           </div>
         </div>
 
-        <!-- Touch/Drag Radial Clock -->
         <div
           class="clock-dial"
           @pointerdown=${this._onPointerDown}
           @pointermove=${this._handlePointerMove}
           @pointerup=${this._onPointerUp}
         >
-          <!-- Clock Hand Assembly -->
           <div
             class="clock-hand"
             style="transform: rotate(${rotationDeg}deg);"
@@ -155,7 +154,6 @@ export class TimePickerStep extends LitElement {
             <div class="hand-head"></div>
           </div>
 
-          <!-- Number Nodes -->
           ${this._mode === 'hours'
             ? [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((h, i) => {
                 const angle = (i * 30 - 90) * (Math.PI / 180);
@@ -187,128 +185,4 @@ export class TimePickerStep extends LitElement {
       </div>
     `;
   }
-
-  static styles = css`
-    .clock-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      user-select: none;
-      touch-action: none;
-    }
-    .time-header {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    .time-digits {
-      display: flex;
-      align-items: center;
-      font-size: 2.2rem;
-      font-weight: bold;
-    }
-    .digit-btn {
-      padding: 6px 12px;
-      border-radius: 8px;
-      background: var(--secondary-background-color, #2a2a2a);
-      color: var(--primary-text-color, #fff);
-      cursor: pointer;
-    }
-    .digit-btn.active {
-      background: var(--primary-color, #03a9f4);
-      color: #ffffff;
-    }
-    .colon {
-      margin: 0 4px;
-      color: var(--primary-text-color, #fff);
-    }
-    .period-toggle {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .period-btn {
-      padding: 4px 10px;
-      border: 1px solid var(--divider-color, #444);
-      background: transparent;
-      color: var(--primary-text-color, #fff);
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.8rem;
-    }
-    .period-btn.active {
-      background: var(--primary-color, #03a9f4);
-      border-color: var(--primary-color, #03a9f4);
-      color: #ffffff;
-    }
-    .clock-dial {
-      position: relative;
-      width: 210px;
-      height: 210px;
-      border-radius: 50%;
-      background: var(--secondary-background-color, #252525);
-      box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4);
-      cursor: pointer;
-      touch-action: none;
-    }
-    .clock-hand {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 210px;
-      height: 210px;
-      pointer-events: none;
-      transform-origin: 105px 105px;
-      transition: transform 0.05s ease-out;
-    }
-    .center-dot {
-      position: absolute;
-      left: 105px;
-      top: 105px;
-      width: 8px;
-      height: 8px;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-      background: var(--primary-color, #03a9f4);
-    }
-    .hand-line {
-      position: absolute;
-      left: 104px;
-      top: 33px;
-      width: 2px;
-      height: 72px;
-      background: var(--primary-color, #03a9f4);
-    }
-    .hand-head {
-      position: absolute;
-      left: 105px;
-      top: 33px;
-      width: 36px;
-      height: 36px;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-      background: var(--primary-color, #03a9f4);
-    }
-    .dial-node {
-      position: absolute;
-      width: 36px;
-      height: 36px;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-      color: var(--primary-text-color, #fff);
-      font-size: 0.95rem;
-      font-weight: 500;
-      pointer-events: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2;
-    }
-    .dial-node.selected {
-      color: #ffffff;
-      font-weight: bold;
-    }
-  `;
 }

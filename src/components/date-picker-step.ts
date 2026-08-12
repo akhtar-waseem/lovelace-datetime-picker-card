@@ -1,9 +1,12 @@
-import { LitElement, html, css, TemplateResult } from 'lit';
+import { LitElement, html, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import styles from '../css/date-picker-step.css';
 
 @customElement('date-picker-step')
 export class DatePickerStep extends LitElement {
   @property({ type: String }) public value: string = '';
+
+  static styles = styles;
 
   render(): TemplateResult {
     return html`
@@ -26,7 +29,7 @@ export class DatePickerStep extends LitElement {
       try {
         input.showPicker();
       } catch {
-        // Fallback
+        // Fallback for unsupported browsers
       }
     }
   }
@@ -44,33 +47,4 @@ export class DatePickerStep extends LitElement {
       );
     }
   }
-
-  static styles = css`
-    .date-step-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 0;
-      width: 100%;
-    }
-    .date-label {
-      font-size: 1rem;
-      font-weight: 500;
-      color: var(--secondary-text-color, #aaa);
-    }
-    .date-input {
-      font-size: 1.25rem;
-      padding: 12px 20px;
-      border-radius: 8px;
-      border: 1px solid var(--primary-color, #03a9f4);
-      background: var(--card-background-color, #222);
-      color: var(--primary-text-color, #fff);
-      color-scheme: dark;
-      cursor: pointer;
-      outline: none;
-      width: 220px;
-      text-align: center;
-    }
-  `;
 }

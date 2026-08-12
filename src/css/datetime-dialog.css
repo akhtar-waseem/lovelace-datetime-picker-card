@@ -1,0 +1,60 @@
+ha-dialog {
+  --mdc-dialog-min-width: 320px;
+  --mdc-dialog-max-width: 340px;
+  --dialog-content-padding: 8px 16px 16px 16px;
+}
+
+.dialog-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.step-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 285px;
+}
+
+.button-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--divider-color, rgba(255, 255, 255, 0.12));
+}
+
+.btn {
+  padding: 8px 18px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s ease;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--primary-text-color, #fff);
+  border: 1px solid var(--divider-color, #555);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-primary {
+  background: var(--primary-color, #03a9f4);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
