@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.devcontainer/
+README.md
+jest.config.js
+
+devtools/homeassistant/*
+!devtools/homeassistant/configuration.yaml
+!devtools/homeassistant/ui-lovelace.yaml

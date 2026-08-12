@@ -1,0 +1,51 @@
+{
+  "name": "datetime-picker-card",
+  "version": "0.0.1",
+  "type": "module",
+  "author": "Waseem Akhtar <waseem6438@gmail.com>",
+  "description": "Lovelace datetime-picker-card",
+  "keywords": [
+    "home-assistant",
+    "homeassistant",
+    "hass",
+    "automation",
+    "lovelace",
+    "lovelace-card",
+    "lovelace-custom-card"
+  ],
+  "license": "MIT",
+  "repository": "git@github.com:akhtar-waseem/lovelace-datetime-picker-card.git",
+  "scripts": {
+    "start": "rollup -c --watch --bundleConfigAsCjs",
+    "build": "npm run lint && npm run rollup",
+    "lint": "eslint src/*.ts",
+    "rollup": "rollup -c --bundleConfigAsCjs",
+    "test": "jest",
+    "release-patch": "npm version patch && git push origin master --tags",
+    "release-minor": "npm version minor && git push origin master --tags",
+    "release-major": "npm version major && git push origin master --tags",
+    "start:ha": "docker run --rm -p8124:8123 -v $(pwd)/devtools/homeassistant:/config homeassistant/home-assistant:latest"
+  },
+  "dependencies": {
+    "custom-card-helpers": "^1.9.0",
+    "home-assistant-js-websocket": "^9.0.0",
+    "lit": "^3.0.0"
+  },
+  "devDependencies": {
+    "@el3um4s/rollup-plugin-terser": "^1.0.2",
+    "@rollup/plugin-babel": "^6.0.2",
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@types/jest": "^29.2.1",
+    "typescript-eslint": "^8.0.0",
+    "eslint": "^9.0.0",
+    "jest": "^29.2.2",
+    "prettier": "^3.3.3",
+    "rollup": "^4.24.4",
+    "rollup-plugin-serve": "^2.0.1",
+    "ts-jest": "^29.0.3",
+    "typescript": "^5.6.3"
+  }
+}
