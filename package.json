@@ -24,7 +24,7 @@
     "release-patch": "npm version patch && git push origin master --tags",
     "release-minor": "npm version minor && git push origin master --tags",
     "release-major": "npm version major && git push origin master --tags",
-    "start:ha": "docker run --rm -p8124:8123 -v $(pwd)/devtools/homeassistant:/config homeassistant/home-assistant:latest"
+    "start:ha": "docker run --rm -p9124:8123 -v $(pwd)/devtools/homeassistant:/config homeassistant/home-assistant:latest"
   },
   "dependencies": {
     "custom-card-helpers": "^1.9.0",
