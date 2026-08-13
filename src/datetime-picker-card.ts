@@ -1,6 +1,7 @@
-import { LitElement, html, css, TemplateResult } from 'lit';
+import { LitElement, html, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
+import styles from './css/datetime-picker-card.css';
 import { TimePickerCardConfig } from './types';
 import './components/datetime-dialog';
 import './editor'; // Static import prevents code-splitting
@@ -11,6 +12,8 @@ export class DateTimePickerCard extends LitElement {
   @property({ type: Object }) private _config!: TimePickerCardConfig;
 
   @state() private _dialogOpen: boolean = false;
+
+  static styles = styles;
 
   // Static reference to editor element (no dynamic chunking)
   public static getConfigElement(): LovelaceCardEditor {
@@ -33,6 +36,7 @@ render(): TemplateResult {
 
   const stateObj = this.hass.states[this._config.entity];
   const name = this._config.name || stateObj?.attributes?.friendly_name || 'Date & Time';
+  const entityName = stateObj?.attributes?.friendly_name ?? this._config.entity;
   const rawState = stateObj ? stateObj.state : 'Unknown';
 
   // Read entity capabilities (default to true if missing)
@@ -70,6 +74,7 @@ render(): TemplateResult {
 
     <datetime-dialog
       .open=${this._dialogOpen}
+      .entityName=${entityName}
       .hasDate=${hasDate}
       .hasTime=${hasTime}
       .initialDate=${currentDate}
@@ -97,39 +102,4 @@ render(): TemplateResult {
     if (time) payload.time = time;
     this.hass.callService('input_datetime', 'set_datetime', payload);
   }
-
-  static styles = css`
-    ha-card {
-      cursor: pointer;
-      user-select: none;
-    }
-    .card-content {
-      display: flex;
-      align-items: center;
-      padding: 16px;
-      gap: 16px;
-    }
-    ha-icon {
-      color: var(--primary-color, #03a9f4);
-      --mdc-icon-size: 28px;
-    }
-    .info {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .name {
-      font-weight: 500;
-      font-size: 0.85rem;
-      color: var(--secondary-text-color, #a0a0a0);
-      line-height: 1.2;
-    }
-    .value {
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: var(--primary-text-color, #ffffff);
-      line-height: 1.3;
-      white-space: nowrap;
-    }
-  `;
 }
