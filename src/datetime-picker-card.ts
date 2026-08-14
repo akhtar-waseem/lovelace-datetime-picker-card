@@ -5,6 +5,7 @@ import styles from './css/datetime-picker-card.css';
 import { TimePickerCardConfig } from './types';
 import { DEFAULT_CONFIG } from './const';
 import './components/datetime-dialog';
+import './components/confirm-dialog';
 import './editor';
 
 @customElement('datetime-picker-card')
@@ -13,6 +14,7 @@ export class DateTimePickerCard extends LitElement {
   @property({ type: Object }) private _config!: TimePickerCardConfig;
 
   @state() private _dialogOpen: boolean = false;
+  @state() private _confirmOpen: boolean = false;
 
   static styles = styles;
 
@@ -116,12 +118,52 @@ export class DateTimePickerCard extends LitElement {
     const targetDate = new Date(y, m - 1, d);
 
     if (timeStr) {
-      const [h, min] = timeStr.split(':').map(Number);
-      if (!isNaN(h) && !isNaN(min)) targetDate.setHours(h, min, 0, 0);
+      const [h, min, s] = timeStr.split(':').map(Number);
+      if (!isNaN(h) && !isNaN(min)) {
+        targetDate.setHours(h, min, !isNaN(s) ? s : 0, 0);
+      }
     }
 
     // Leverage native Home Assistant helper
     return relativeTime(targetDate, this.hass.locale);
+  }
+
+  private _handleQuickNow(e: Event): void {
+    e.stopPropagation();
+    this._confirmOpen = true;
+  }
+
+  private _closeConfirm(e?: Event): void {
+    if (e) e.stopPropagation();
+    this._confirmOpen = false;
+  }
+
+  private _applyNow(e: Event): void {
+    e.stopPropagation();
+    this._confirmOpen = false;
+
+    const stateObj = this.hass.states[this._config.entity];
+    if (!stateObj) return;
+
+    const hasDate = stateObj.attributes?.has_date ?? true;
+    const hasTime = stateObj.attributes?.has_time ?? true;
+
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+
+    const payload: Record<string, string> = {
+      entity_id: this._config.entity,
+    };
+
+    if (hasDate) {
+      payload.date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    }
+
+    if (hasTime) {
+      payload.time = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    }
+
+    this.hass.callService('input_datetime', 'set_datetime', payload);
   }
 
   render(): TemplateResult {
@@ -168,15 +210,30 @@ export class DateTimePickerCard extends LitElement {
     const hideIcon = this._config.hide?.icon;
     const hideName = this._config.hide?.name;
 
+    const targetTargetText = hasDate && hasTime ? 'date and time' : hasDate ? 'date' : 'time';
+    const confirmMessage = `Are you sure you want to update ${name} to current ${targetTargetText}?`;
+
     return html`
       <ha-card @click=${this._openDialog}>
         <div class="card-content">
-          ${!hideIcon ? html`<ha-icon .icon=${icon}></ha-icon>` : ''}
+          ${!hideIcon ? html`<ha-icon .icon=${icon} class="main-icon"></ha-icon>` : ''}
           <div class="info">
             ${!hideName ? html`<div class="name">${name}</div>` : ''}
             <div class="value">${formattedValue}</div>
             ${relativeText ? html`<div class="relative">${relativeText}</div>` : ''}
           </div>
+
+          ${this._config.show_quick_now
+            ? html`
+                <ha-icon-button
+                  class="quick-now-btn"
+                  title="Set to Now"
+                  @click=${this._handleQuickNow}
+                >
+                  <ha-icon icon="mdi:clock-fast"></ha-icon>
+                </ha-icon-button>
+              `
+            : ''}
         </div>
       </ha-card>
 
@@ -191,6 +248,14 @@ export class DateTimePickerCard extends LitElement {
         @datetime-dialog-closed=${this._closeDialog}
         @datetime-saved=${this._handleSave}
       ></datetime-dialog>
+
+      <datetime-confirm-dialog
+        .open=${this._confirmOpen}
+        .title=${entityName}
+        .message=${confirmMessage}
+        @confirm-closed=${this._closeConfirm}
+        @confirm-approved=${this._applyNow}
+      ></datetime-confirm-dialog>
     `;
   }
 

@@ -1,32 +1,55 @@
+:host {
+  display: block;
+}
+
 ha-card {
-    cursor: pointer;
-    user-select: none;
+  cursor: pointer;
+  user-select: none;
 }
+
 .card-content {
-    display: flex;
-    align-items: center;
-    padding: 16px;
-    gap: 16px;
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  gap: 16px;
 }
-ha-icon {
-    color: var(--primary-color, #03a9f4);
-    --mdc-icon-size: 28px;
+
+.main-icon {
+  color: var(--state-icon-color, var(--primary-color));
+  flex-shrink: 0;
 }
+
 .info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  flex: 1;
+  min-width: 0;
 }
+
 .name {
-    font-weight: 500;
-    font-size: 0.85rem;
-    color: var(--secondary-text-color, #a0a0a0);
-    line-height: 1.2;
+  font-size: 0.9rem;
+  color: var(--secondary-text-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+
 .value {
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: var(--primary-text-color, #ffffff);
-    line-height: 1.3;
-    white-space: nowrap;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--primary-text-color);
+}
+
+.relative {
+  font-size: 0.8rem;
+  color: var(--secondary-text-color);
+  margin-top: 2px;
+}
+
+.quick-now-btn {
+  color: var(--secondary-text-color);
+  flex-shrink: 0;
+  transition: color 0.2s ease-in-out;
+}
+
+.quick-now-btn:hover {
+  color: var(--primary-color);
 }
