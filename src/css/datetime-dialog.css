@@ -1,6 +1,9 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
 ha-dialog {
-  --mdc-dialog-min-width: 320px;
-  --mdc-dialog-max-width: 340px;
   --dialog-content-padding: 8px 16px 16px 16px;
 }
 
@@ -9,6 +12,8 @@ ha-dialog {
   flex-direction: column;
   align-items: center;
   width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
   box-sizing: border-box;
 }
 
@@ -17,17 +22,23 @@ ha-dialog {
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 285px;
+  height: min(280px, calc(100vh - 180px));
+  box-sizing: border-box;
 }
 
 .button-row {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  align-items: center;
   width: 100%;
-  margin-top: 12px;
+  gap: 8px;
+  margin-top: 16px;
   padding-top: 12px;
-  border-top: 1px solid var(--divider-color, rgba(255, 255, 255, 0.12));
+  box-sizing: border-box;
+  border-top: 1px solid var(
+    --divider-color,
+    rgba(255, 255, 255, 0.12)
+  );
 }
 
 .btn {
@@ -52,7 +63,7 @@ ha-dialog {
 
 .btn-primary {
   background: var(--primary-color, #03a9f4);
-  color: #ffffff;
+  color: #fff;
 }
 
 .btn-primary:hover {

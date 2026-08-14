@@ -1,11 +1,14 @@
 import { LitElement, html, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import { HomeAssistant } from 'custom-card-helpers';
 import styles from '../css/datetime-dialog.css';
 import './date-picker-step';
 import './time-picker-step';
 
 @customElement('datetime-dialog')
 export class DateTimeDialog extends LitElement {
+  @property({ type: Object }) public hass!: HomeAssistant;
+  @property({ type: String }) public entityName: string = '';
   @property({ type: Boolean }) public open: boolean = false;
   @property({ type: Boolean }) public hasDate: boolean = true;
   @property({ type: Boolean }) public hasTime: boolean = true;
@@ -34,17 +37,23 @@ export class DateTimeDialog extends LitElement {
     return html`
       <ha-dialog
         open
-        heading=${this._step === 'date' ? 'Select Date' : 'Select Time'}
+        width="small"
         @closed=${this._handleHaDialogClosed}
       >
+        <span slot="headerTitle">${this.entityName}</span>
         <div class="dialog-body">
           <div class="step-content">
             ${this._step === 'date'
               ? html`
                   <date-picker-step
+                    .hass=${this.hass}
                     .value=${this._tempDate}
-                    @date-changed=${(e: CustomEvent<{ value: string }>) =>
-                      (this._tempDate = e.detail.value)}
+                    @date-changed=${(e: CustomEvent<{ value: string; autoNext?: boolean }>) => {
+                      this._tempDate = e.detail.value;
+                      if (e.detail.autoNext && this.hasTime) {
+                        this._step = 'time';
+                    }
+                  }}
                   ></date-picker-step>
                 `
               : html`

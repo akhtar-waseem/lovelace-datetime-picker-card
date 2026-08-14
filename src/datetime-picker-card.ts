@@ -73,6 +73,7 @@ render(): TemplateResult {
     </ha-card>
 
     <datetime-dialog
+      .hass=${this.hass}
       .open=${this._dialogOpen}
       .entityName=${entityName}
       .hasDate=${hasDate}
