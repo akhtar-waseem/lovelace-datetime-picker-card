@@ -25,6 +25,7 @@ export default {
     dir: './dist',
     format: 'es',
   },
+  context: 'window',
   plugins: [
     litCss({ include: 'src/**/*.css' }),
     typescript({ exclude: ['test/**/*'] }),
