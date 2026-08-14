@@ -7,9 +7,8 @@ export class TimePickerStep extends LitElement {
   @property({ type: String }) public value: string = '12:00:00';
 
   @state() private _mode: 'hours' | 'minutes' = 'hours';
-  @state() private _selectedHour: number = 12;
-  @state() private _selectedMinute: number = 0;
-  @state() private _period: 'AM' | 'PM' = 'PM';
+  @state() private _selectedHour: number = 12; // 0..23
+  @state() private _selectedMinute: number = 0; // 0..59
   @state() private _isDragging: boolean = false;
 
   static styles = styles;
@@ -25,17 +24,12 @@ export class TimePickerStep extends LitElement {
     const rawHour = parseInt(parts[0] || '12', 10);
     const rawMin = parseInt(parts[1] || '00', 10);
 
-    this._period = rawHour >= 12 ? 'PM' : 'AM';
-    this._selectedHour = rawHour % 12 === 0 ? 12 : rawHour % 12;
-    this._selectedMinute = isNaN(rawMin) ? 0 : rawMin;
+    this._selectedHour = isNaN(rawHour) ? 12 : Math.min(Math.max(rawHour, 0), 23);
+    this._selectedMinute = isNaN(rawMin) ? 0 : Math.min(Math.max(rawMin, 0), 59);
   }
 
   private _notifyChange(): void {
-    let hour24 = this._selectedHour;
-    if (this._period === 'PM' && hour24 < 12) hour24 += 12;
-    if (this._period === 'AM' && hour24 === 12) hour24 = 0;
-
-    const hh = String(hour24).padStart(2, '0');
+    const hh = String(this._selectedHour).padStart(2, '0');
     const mm = String(this._selectedMinute).padStart(2, '0');
 
     this.dispatchEvent(
@@ -54,18 +48,24 @@ export class TimePickerStep extends LitElement {
     if (!dial) return;
 
     const rect = dial.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
+    const radius = rect.width / 2;
+    const centerX = rect.left + radius;
+    const centerY = rect.top + radius;
 
     const x = e.clientX - centerX;
     const y = e.clientY - centerY;
+
+    // Distance ratio relative to clock radius (0.0 at center, 1.0 at outer edge)
+    const distanceRatio = Math.sqrt(x * x + y * y) / radius;
+
     let deg = Math.atan2(y, x) * (180 / Math.PI) + 90;
     if (deg < 0) deg += 360;
 
     if (this._mode === 'hours') {
-      let hour = Math.round(deg / 30);
-      if (hour === 0) hour = 12;
-      this._selectedHour = hour;
+      const step = Math.round(deg / 30) % 12;
+      const isInnerRing = distanceRatio < 0.61;
+
+      this._selectedHour = isInnerRing ? step + 12 : step;
     } else {
       let minute = Math.round(deg / 6);
       if (minute === 60) minute = 0;
@@ -90,22 +90,35 @@ export class TimePickerStep extends LitElement {
     }
   }
 
-  private _togglePeriod(period: 'AM' | 'PM'): void {
-    this._period = period;
-    this._notifyChange();
-  }
-
   render(): TemplateResult {
     const displayHour = String(this._selectedHour).padStart(2, '0');
     const displayMin = String(this._selectedMinute).padStart(2, '0');
 
-    const rotationDeg =
-      this._mode === 'hours'
-        ? (this._selectedHour % 12) * 30
-        : this._selectedMinute * 6;
+    // Calculate SVG coordinates (ViewBox 200x200, center at 100,100)
+    let handRadius = 74; // Outer ring (37% of 200)
+    let handAngleRad = 0;
+
+    if (this._mode === 'hours') {
+      const isInner = this._selectedHour >= 12;
+      handRadius = isInner ? 48 : 74; // Inner ring (24%) vs Outer ring (37%)
+      const hourStep = this._selectedHour % 12;
+      handAngleRad = (hourStep * 30 - 90) * (Math.PI / 180);
+    } else {
+      handRadius = 74;
+      handAngleRad = (this._selectedMinute * 6 - 90) * (Math.PI / 180);
+    }
+
+    const handX = 100 + handRadius * Math.cos(handAngleRad);
+    const handY = 100 + handRadius * Math.sin(handAngleRad);
+
+    // Outer hours: 0-11, Inner hours: 12-23
+    const outerHours = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+    const innerHours = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+    const minutesList = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
     return html`
       <div class="clock-container">
+        <!-- Header Digits Display -->
         <div class="time-header">
           <div class="time-digits">
             <span
@@ -122,65 +135,71 @@ export class TimePickerStep extends LitElement {
               ${displayMin}
             </span>
           </div>
-
-          <div class="period-toggle">
-            <button
-              class="period-btn ${this._period === 'AM' ? 'active' : ''}"
-              @click=${() => this._togglePeriod('AM')}
-            >
-              AM
-            </button>
-            <button
-              class="period-btn ${this._period === 'PM' ? 'active' : ''}"
-              @click=${() => this._togglePeriod('PM')}
-            >
-              PM
-            </button>
-          </div>
         </div>
 
+        <!-- Clock Dial Container -->
         <div
           class="clock-dial"
           @pointerdown=${this._onPointerDown}
           @pointermove=${this._handlePointerMove}
           @pointerup=${this._onPointerUp}
         >
-          <div
-            class="clock-hand"
-            style="transform: rotate(${rotationDeg}deg);"
-          >
-            <div class="center-dot"></div>
-            <div class="hand-line"></div>
-            <div class="hand-head"></div>
-          </div>
+          <!-- Vector Clock Pointer Hand -->
+          <svg class="clock-svg" viewBox="0 0 200 200">
+            <line x1="100" y1="100" x2="${handX}" y2="${handY}" class="hand-line" />
+            <circle cx="${handX}" cy="${handY}" r="15" class="hand-head" />
+            <circle cx="100" cy="100" r="4" class="center-dot" />
+          </svg>
 
+          <!-- Dial Numbers -->
           ${this._mode === 'hours'
-            ? [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((h, i) => {
-                const angle = (i * 30 - 90) * (Math.PI / 180);
-                const x = Math.round(105 + 72 * Math.cos(angle));
-                const y = Math.round(105 + 72 * Math.sin(angle));
-                return html`
-                  <div
-                    class="dial-node ${this._selectedHour === h ? 'selected' : ''}"
-                    style="left: ${x}px; top: ${y}px;"
-                  >
-                    ${h}
-                  </div>
-                `;
-              })
-            : [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map((m, i) => {
-                const angle = (i * 30 - 90) * (Math.PI / 180);
-                const x = Math.round(105 + 72 * Math.cos(angle));
-                const y = Math.round(105 + 72 * Math.sin(angle));
-                return html`
-                  <div
-                    class="dial-node ${this._selectedMinute === m ? 'selected' : ''}"
-                    style="left: ${x}px; top: ${y}px;"
-                  >
-                    ${String(m).padStart(2, '0')}
-                  </div>
-                `;
-              })}
+            ? html`
+                <!-- Outer Ring (0-11) -->
+                ${outerHours.map((h, i) => {
+                  const angle = (i * 30 - 90) * (Math.PI / 180);
+                  const x = 50 + 37 * Math.cos(angle);
+                  const y = 50 + 37 * Math.sin(angle);
+                  return html`
+                    <div
+                      class="dial-node ${this._selectedHour === h ? 'selected' : ''}"
+                      style="left: ${x}%; top: ${y}%;"
+                    >
+                      ${h}
+                    </div>
+                  `;
+                })}
+
+                <!-- Inner Ring (12-23) -->
+                ${innerHours.map((h, i) => {
+                  const angle = (i * 30 - 90) * (Math.PI / 180);
+                  const x = 50 + 24 * Math.cos(angle);
+                  const y = 50 + 24 * Math.sin(angle);
+                  return html`
+                    <div
+                      class="dial-node inner-node ${this._selectedHour === h ? 'selected' : ''}"
+                      style="left: ${x}%; top: ${y}%;"
+                    >
+                      ${h}
+                    </div>
+                  `;
+                })}
+              `
+            : html`
+                <!-- Minute Ring -->
+                ${minutesList.map((m, i) => {
+                  const angle = (i * 30 - 90) * (Math.PI / 180);
+                  const x = 50 + 37 * Math.cos(angle);
+                  const y = 50 + 37 * Math.sin(angle);
+                  return html`
+                    <div
+                      class="dial-node ${this._selectedMinute === m ? 'selected' : ''}"
+                      style="left: ${x}%; top: ${y}%;"
+                    >
+                      ${String(m).padStart(2, '0')}
+                    </div>
+                  `;
+                })}
+              `}
         </div>
       </div>
     `;
