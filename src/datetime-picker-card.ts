@@ -1,6 +1,7 @@
 import { LitElement, html, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { HomeAssistant, LovelaceCardEditor, relativeTime } from 'custom-card-helpers';
+import { HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
+import { formatDate, formatTime, getRelativeText, getToday } from './utils/helpers';
 import styles from './css/datetime-picker-card.css';
 import { TimePickerCardConfig } from './types';
 import { DEFAULT_CONFIG } from './const';
@@ -41,93 +42,6 @@ export class DateTimePickerCard extends LitElement {
     this._config = { ...DEFAULT_CONFIG, ...config };
   }
 
-  /**
-   * Helper to format raw time (HH:MM:SS) based on hour_mode (12h vs 24h)
-   */
-  private _formatTime(timeStr: string): string {
-    if (!timeStr || timeStr === 'Unknown') return timeStr;
-    const [h, m] = timeStr.split(':').map(Number);
-    if (isNaN(h) || isNaN(m)) return timeStr;
-
-    if (Number(this._config.hour_mode) === 12) {
-      const date = new Date();
-      date.setHours(h, m, 0, 0);
-      return new Intl.DateTimeFormat(this.hass.language || 'en', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-      }).format(date);
-    }
-
-    // Default 24-hour format (HH:mm)
-    const pad = (n: number): string => String(n).padStart(2, '0');
-    return `${pad(h)}:${pad(m)}`;
-  }
-
-  /**
-   * Helper to format YYYY-MM-DD based on date_format selection
-   */
-  private _formatDate(dateStr: string): string {
-    if (!dateStr || dateStr === 'Unknown') return dateStr;
-    const [year, month, day] = dateStr.split('-').map(Number);
-    if (isNaN(year) || isNaN(month) || isNaN(day)) return dateStr;
-
-    const date = new Date(year, month - 1, day);
-    const lang = this.hass.language || 'en';
-    const format = this._config.date_format || 'default';
-
-    if (format === 'default') {
-      return new Intl.DateTimeFormat(lang, {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      }).format(date);
-    }
-
-    let options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
-    switch (format) {
-      case 'YYYY-MM-DD':
-        return dateStr;
-      case 'DD/MM/YYYY':
-      case 'MM/DD/YYYY':
-        options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-        break;
-      case 'MMM D, YYYY':
-      case 'D MMM YYYY':
-        options = { year: 'numeric', month: 'short', day: 'numeric' };
-        break;
-      case 'MMMM D, YYYY':
-        options = { year: 'numeric', month: 'long', day: 'numeric' };
-        break;
-      case 'dddd, MMM D':
-        options = { weekday: 'long', month: 'short', day: 'numeric' };
-        break;
-    }
-    return new Intl.DateTimeFormat(lang, options).format(date);
-  }
-
-  /**
-   * Helper for computing relative text (e.g. "In 2 days", "Yesterday")
-   */
-  private _getRelativeText(dateStr: string, timeStr?: string): string | null {
-    if (!this._config.show_relative || !dateStr || dateStr === 'Unknown') return null;
-
-    const [y, m, d] = dateStr.split('-').map(Number);
-    if (isNaN(y) || isNaN(m) || isNaN(d)) return null;
-
-    const targetDate = new Date(y, m - 1, d);
-
-    if (timeStr) {
-      const [h, min, s] = timeStr.split(':').map(Number);
-      if (!isNaN(h) && !isNaN(min)) {
-        targetDate.setHours(h, min, !isNaN(s) ? s : 0, 0);
-      }
-    }
-
-    // Leverage native Home Assistant helper
-    return relativeTime(targetDate, this.hass.locale);
-  }
-
   private _handleQuickNow(e: Event): void {
     e.stopPropagation();
     this._confirmOpen = true;
@@ -149,7 +63,7 @@ export class DateTimePickerCard extends LitElement {
     const hasTime = stateObj.attributes?.has_time ?? true;
 
     const now = new Date();
-    const pad = (n: number) => String(n).padStart(2, '0');
+    const pad = (n: number): string => String(n).padStart(2, '0');
 
     const payload: Record<string, string> = {
       entity_id: this._config.entity,
@@ -194,16 +108,30 @@ export class DateTimePickerCard extends LitElement {
 
     // Apply custom formatting based on entity capabilities
     let formattedValue = rawState;
+    let formattedDate = '';
+    let formattedTime = '';
+
+    if (hasDate) {
+      formattedDate = formatDate(currentDate, this._config.date_format, this.hass);
+    }
+    if (hasTime) {
+      formattedTime = formatTime(currentTime, this._config.hour_mode, this.hass);
+    }
     if (hasDate && hasTime) {
-      formattedValue = `${this._formatDate(currentDate)}  •  ${this._formatTime(currentTime)}`;
+      formattedValue = `${formattedDate}  •  ${formattedTime}`;
     } else if (hasDate) {
-      formattedValue = this._formatDate(currentDate);
+      formattedValue = formattedDate;
     } else if (hasTime) {
-      formattedValue = this._formatTime(currentTime);
+      formattedValue = formattedTime;
     }
 
     // Relative timestamp subtitle
-    const relativeText = hasDate ? this._getRelativeText(currentDate, currentTime) : null;
+    const relativeText = getRelativeText(
+      currentDate || getToday(),
+      currentTime,
+      this._config.show_relative, 
+      this.hass
+    );
 
     // Respect custom icon or hide settings
     const icon = this._config.icon || stateObj?.attributes?.icon || 'mdi:calendar-clock';
