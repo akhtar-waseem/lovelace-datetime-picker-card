@@ -1,4 +1,14 @@
-import { HomeAssistant, relativeTime } from 'custom-card-helpers';
+import {
+  ActionConfig as ExternalActionConfig,
+  HomeAssistant,
+  relativeTime
+} from 'custom-card-helpers';
+import {
+  ActionConfig,
+  CallServiceActionConfig,
+  TimePickerCardConfig,
+  TimePickerCardConfigForCustomCardHelper
+} from '../types';
 import { DEFAULT_CONFIG } from '../const';
 
 /**
@@ -97,4 +107,37 @@ export function getToday(): string {
   const now = new Date();
   const pad = (n: number): string => String(n).padStart(2, '0');
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
+/**
+ * Convert internal ActionConfig to ExternalActionConfig for custom-card-helpers
+ */
+export function toExternalActionConfig(action?: ActionConfig): ExternalActionConfig| undefined {
+  if (!action) return undefined;
+
+  if (action.action === 'perform-action' || action.action === 'call-service') {
+    const serviceAction = action as CallServiceActionConfig;
+    return {
+      action: 'call-service',
+      service: serviceAction.perform_action || serviceAction.service || '',
+      service_data: serviceAction.data || serviceAction.service_data,
+      target: serviceAction.target,
+      confirmation: serviceAction.confirmation,
+    } as ExternalActionConfig;
+  }
+
+  return action as unknown as ExternalActionConfig;
+}
+
+/**
+ * Convert internal TimePickerCardConfig to TimePickerCardConfigForCustomCardHelper
+ */
+export function toExternalTimePickerConfig(
+  config: TimePickerCardConfig
+): TimePickerCardConfigForCustomCardHelper {
+  return {
+    ...config,
+    double_tap_action: toExternalActionConfig(config.double_tap_action),
+    hold_action: toExternalActionConfig(config.hold_action),
+  };
 }

@@ -69,9 +69,8 @@ const SCHEMA = [
     type: 'expandable',
     title: 'Actions',
     schema: [
-      { name: 'tap_action', selector: { action: {} } },
-      { name: 'double_tap_action', selector: { action: {} } },
-      { name: 'hold_action', selector: { action: {} } },
+      { name: 'double_tap_action', selector: { ui_action: {} } },
+      { name: 'hold_action', selector: { ui_action: {} } },
     ],
   },
 ];

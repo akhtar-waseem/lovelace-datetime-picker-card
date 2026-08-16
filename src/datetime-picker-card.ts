@@ -1,9 +1,26 @@
+import {
+  ActionHandlerEvent,
+  handleAction,
+  hasAction,
+  HomeAssistant,
+  LovelaceCardEditor 
+} from 'custom-card-helpers';
+import { actionHandler } from './action-handler-directive';
 import { LitElement, html, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
-import { formatDate, formatTime, getRelativeText, getToday } from './utils/helpers';
+import {
+  formatDate,
+  formatTime,
+  getRelativeText,
+  getToday,
+  toExternalTimePickerConfig
+} from './utils/helpers';
 import styles from './css/datetime-picker-card.css';
-import { TimePickerCardConfig } from './types';
+import {
+  TimePickerCardConfig,
+  TimePickerCardConfigForCustomCardHelper,
+  CallServiceActionConfig
+} from './types';
 import { DEFAULT_CONFIG } from './const';
 import './components/datetime-dialog';
 import './components/confirm-dialog';
@@ -13,6 +30,7 @@ import './editor';
 export class DateTimePickerCard extends LitElement {
   @property({ type: Object }) public hass!: HomeAssistant;
   @property({ type: Object }) private _config!: TimePickerCardConfig;
+  @property({ type: Object }) private _configExternal!: TimePickerCardConfigForCustomCardHelper;
 
   @state() private _dialogOpen: boolean = false;
   @state() private _confirmOpen: boolean = false;
@@ -40,6 +58,7 @@ export class DateTimePickerCard extends LitElement {
       throw new Error('Please define an input_datetime entity');
     }
     this._config = { ...DEFAULT_CONFIG, ...config };
+    this._configExternal = toExternalTimePickerConfig(this._config);
   }
 
   private _handleQuickNow(e: Event): void {
@@ -142,7 +161,11 @@ export class DateTimePickerCard extends LitElement {
     const confirmMessage = `Are you sure you want to update ${name} to current ${targetTargetText}?`;
 
     return html`
-      <ha-card @click=${this._openDialog}>
+      <ha-card @action=${this._handleAction}
+        .actionHandler="${actionHandler({
+        hasHold: hasAction(this._configExternal.hold_action),
+        hasDoubleClick: hasAction(this._configExternal.double_tap_action),
+      })}">
         <div class="card-content">
           ${!hideIcon ? html`<ha-icon .icon=${icon} class="main-icon"></ha-icon>` : ''}
           <div class="info">
@@ -203,5 +226,54 @@ export class DateTimePickerCard extends LitElement {
     if (date) payload.date = date;
     if (time) payload.time = time;
     this.hass.callService('input_datetime', 'set_datetime', payload);
+  }
+
+   private _handleAction(ev: ActionHandlerEvent): void {
+    const action = ev.detail.action;
+    console.log('Action triggered:', action);
+    if (action === 'tap') {
+      this._openDialog();
+      return;
+    }
+
+    const actionConfig =
+    action === 'hold'
+      ? this._config.hold_action
+      : action === 'double_tap'
+        ? this._config.double_tap_action
+        : undefined;
+    if (!actionConfig) {
+      console.warn(`No action configured for ${action}`);
+      return;
+    }
+
+     if (actionConfig.action === "call-service" || actionConfig.action === "perform-action") {
+        this._handlePerformAction(actionConfig);
+        return;
+      }
+    handleAction(this, this.hass, this._configExternal, action);
+  }
+
+  private _handlePerformAction(performAction: CallServiceActionConfig): void {
+    if (!performAction.perform_action) {
+      console.error('perform_action is missing');
+      return;
+    }
+
+    const [domain, service] = performAction.perform_action.split('.', 2);
+
+    console.log('Performing action:', {
+      domain,
+      service,
+      data: performAction.data,
+      target: performAction.target,
+    });
+
+    this.hass.callService(
+      domain,
+      service,
+      performAction.data,
+      performAction.target
+    );
   }
 }
