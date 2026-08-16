@@ -230,7 +230,6 @@ export class DateTimePickerCard extends LitElement {
 
    private _handleAction(ev: ActionHandlerEvent): void {
     const action = ev.detail.action;
-    console.log('Action triggered:', action);
     if (action === 'tap') {
       this._openDialog();
       return;
@@ -243,7 +242,6 @@ export class DateTimePickerCard extends LitElement {
         ? this._config.double_tap_action
         : undefined;
     if (!actionConfig) {
-      console.warn(`No action configured for ${action}`);
       return;
     }
 
@@ -256,18 +254,10 @@ export class DateTimePickerCard extends LitElement {
 
   private _handlePerformAction(performAction: CallServiceActionConfig): void {
     if (!performAction.perform_action) {
-      console.error('perform_action is missing');
       return;
     }
 
     const [domain, service] = performAction.perform_action.split('.', 2);
-
-    console.log('Performing action:', {
-      domain,
-      service,
-      data: performAction.data,
-      target: performAction.target,
-    });
 
     this.hass.callService(
       domain,
