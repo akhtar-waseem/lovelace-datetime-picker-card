@@ -12,7 +12,6 @@ const NAME_TO_LABEL_MAP = {
   date_format: 'Date Display Format',
   show_relative: 'Show Relative Time (e.g. "In 2 days")',
   show_quick_now: 'Show "Set to Now" Button',
-  minute_step: 'Minute Selection Interval',
 };
 
 const SCHEMA = [
@@ -47,22 +46,6 @@ const SCHEMA = [
       },
       { name: 'show_relative', type: 'boolean' },
       { name: 'show_quick_now', type: 'boolean' },
-    ],
-  },
-  {
-    type: 'expandable',
-    title: 'Time Selection Configuration',
-    schema: [
-      {
-        name: 'minute_step',
-        type: 'select',
-        options: [
-          ['1', '1 Minute'],
-          ['5', '5 Minutes'],
-          ['15', '15 Minutes'],
-          ['30', '30 Minutes'],
-        ],
-      },
     ],
   },
   {

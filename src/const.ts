@@ -9,7 +9,6 @@ export const ENTITY_DOMAIN = 'input_datetime';
 export const DEFAULT_CONFIG: Partial<TimePickerCardConfig> = {
   hour_mode: '24',
   date_format: 'default',
-  minute_step: '1',
   show_relative: true,
   show_quick_now: false,
 };

@@ -47,7 +47,6 @@ export class DateTimePickerCard extends LitElement {
       entity: '',
       hour_mode: DEFAULT_CONFIG.hour_mode,
       date_format: DEFAULT_CONFIG.date_format,
-      minute_step: DEFAULT_CONFIG.minute_step,
       show_relative: DEFAULT_CONFIG.show_relative,
       show_quick_now: DEFAULT_CONFIG.show_quick_now,
     };

@@ -61,7 +61,6 @@ export interface TimePickerCardConfig extends LovelaceCardConfig {
   date_format?: DateFormat;
   show_relative?: boolean;
   show_quick_now?: boolean;
-  minute_step?: MinuteStep;
   double_tap_action?: ActionConfig;
   hold_action?: ActionConfig;
   hide?: TimePickerHideConfig;
@@ -75,7 +74,6 @@ export interface TimePickerCardConfigForCustomCardHelper extends LovelaceCardCon
   date_format?: DateFormat;
   show_relative?: boolean;
   show_quick_now?: boolean;
-  minute_step?: MinuteStep;
   double_tap_action?: ExternalActionConfig;
   hold_action?: ExternalActionConfig;
   hide?: TimePickerHideConfig;
