@@ -1,6 +1,6 @@
 {
   "name": "datetime-picker-card",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "author": "Waseem Akhtar <waseem6438@gmail.com>",
   "description": "Lovelace datetime-picker-card",
