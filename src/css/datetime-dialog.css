@@ -1,72 +1,72 @@
 :host {
   display: block;
-  width: 100%;
-}
-
-ha-adaptive-dialog {
-  --dialog-content-padding: 16px 16px 16px 16px;
 }
 
 .dialog-body {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 320px;
-  margin: 0 auto;
+  padding: 8px 16px 16px 16px;
   box-sizing: border-box;
 }
 
-.step-content {
+/* Selected Summary Row (Plain Text Header + Divider) */
+.selected-summary {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--divider-color, rgba(255, 255, 255, 0.12));
+  color: var(--primary-color, #03a9f4);
+  font-weight: 600;
+  font-size: large;
+}
+
+/* Enforce uniform body height for both Date & Time steps */
+.step-content {
+  min-height: 280px;
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: min(290px, calc(100vh - 180px));
-  box-sizing: border-box;
 }
 
+/* Footer Action Buttons with Divider */
 .button-row {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  width: 100%;
+  justify-content: flex-end;
   gap: 8px;
   margin-top: 12px;
   padding-top: 12px;
-  box-sizing: border-box;
-  border-top: 1px solid var(
-    --divider-color,
-    rgba(255, 255, 255, 0.12)
-  );
+  border-top: 1px solid var(--divider-color, rgba(255, 255, 255, 0.12));
 }
 
 .btn {
   padding: 8px 18px;
+  border-radius: 18px;
+  border: none;
   font-size: 0.95rem;
   font-weight: 600;
-  border-radius: 8px;
   cursor: pointer;
-  border: none;
-  transition: background 0.2s ease;
+  transition: background 0.15s ease;
 }
 
 .btn-secondary {
   background: transparent;
-  color: var(--primary-text-color, #fff);
-  border: 1px solid var(--divider-color, #555);
+  color: var(--primary-text-color, #ffffff);
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--secondary-background-color, rgba(255, 255, 255, 0.1));
 }
 
 .btn-primary {
   background: var(--primary-color, #03a9f4);
-  color: #fff;
+  color: #ffffff;
 }
 
 .btn-primary:hover {
-  opacity: 0.9;
+  filter: brightness(1.1);
 }

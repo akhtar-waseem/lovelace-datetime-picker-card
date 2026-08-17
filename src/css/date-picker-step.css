@@ -3,72 +3,103 @@
   width: 100%;
 }
 
-.date-step-container {
+.inline-calendar {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
   width: 100%;
-  height: 100%;
-}
-
-/* Constrained strictly to badge dimensions for cursor scope */
-.date-badge-wrapper {
-  position: relative;
-  display: inline-flex;
-  cursor: pointer;
-}
-
-/* Styled Label Badge */
-.date-label-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 12px 22px;
-  border-radius: 16px;
-  background: var(--secondary-background-color, rgba(255, 255, 255, 0.08));
-  border: 1px solid var(--divider-color, rgba(255, 255, 255, 0.15));
-  color: var(--primary-text-color, #ffffff);
-  font-size: 1.15rem;
-  font-weight: 500;
-  letter-spacing: 0.3px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  max-width: 280px;
+  margin: 0 auto;
   user-select: none;
+}
+
+.calendar-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.month-year-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary-text-color, #ffffff);
+}
+
+.right-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.nav-btn,
+.today-icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--primary-text-color, #ffffff);
   cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
 }
 
-.date-label-badge ha-icon {
-  --mdc-icon-size: 22px;
+.today-icon-btn {
   color: var(--primary-color, #03a9f4);
-  transition: transform 0.2s ease;
 }
 
-/* Hover & Active States */
-.date-badge-wrapper:hover .date-label-badge {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: var(--primary-color, #03a9f4);
-  box-shadow: 0 4px 12px rgba(3, 169, 244, 0.2);
-  transform: translateY(-1px);
+.nav-btn:hover,
+.today-icon-btn:hover {
+  background: var(--secondary-background-color, rgba(255, 255, 255, 0.1));
 }
 
-.date-badge-wrapper:hover .date-label-badge ha-icon {
-  transform: scale(1.1);
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
 }
 
-.date-badge-wrapper:active .date-label-badge {
-  transform: translateY(0);
+.weekday-header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--secondary-text-color, rgba(255, 255, 255, 0.6));
+  padding-bottom: 4px;
 }
 
-/* Invisible helper element stack */
-.hidden-picker {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  pointer-events: none;
+.day-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1;
+}
+
+.day-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--primary-text-color, #ffffff);
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.day-btn:hover {
+  background: var(--secondary-background-color, rgba(255, 255, 255, 0.12));
+}
+
+.day-btn.today {
+  border: 1px solid var(--primary-color, #03a9f4);
+}
+
+.day-btn.selected {
+  background: var(--primary-color, #03a9f4) !important;
+  color: #ffffff !important;
+  font-weight: bold;
 }

@@ -2,6 +2,7 @@ import { LitElement, html, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { HomeAssistant } from 'custom-card-helpers';
 import styles from '../css/datetime-dialog.css';
+import { formatDate, formatTime } from '../utils/helpers';
 import './date-picker-step';
 import './time-picker-step';
 
@@ -29,10 +30,23 @@ export class DateTimeDialog extends LitElement {
     }
   }
 
+  private _getFormattedValue(): string {
+    const parts: string[] = [];
+    if (this.hasDate && this._tempDate) {
+      parts.push(formatDate(this._tempDate, 'MMM D, YYYY', this.hass));
+    }
+    if (this.hasTime && this._tempTime) {
+      parts.push(formatTime(this._tempTime, undefined, this.hass));
+    }
+    return parts.join(' • ');
+  }
+
   render(): TemplateResult {
     if (!this.open) return html``;
 
     const isBoth = this.hasDate && this.hasTime;
+    const isDateStep = this._step === 'date';
+    const primaryLabel = isBoth && isDateStep ? 'Next' : 'Save';
 
     return html`
       <ha-adaptive-dialog
@@ -42,18 +56,19 @@ export class DateTimeDialog extends LitElement {
       >
         <span slot="headerTitle">${this.entityName}</span>
         <div class="dialog-body">
+          <!-- Clean Selected Value Row -->
+          <span class="selected-summary">${this._getFormattedValue()}</span>
+
+          <!-- Step Content Area -->
           <div class="step-content">
-            ${this._step === 'date'
+            ${isDateStep
               ? html`
                   <date-picker-step
                     .hass=${this.hass}
                     .value=${this._tempDate}
-                    @date-changed=${(e: CustomEvent<{ value: string; autoNext?: boolean }>) => {
+                    @date-changed=${(e: CustomEvent<{ value: string }>) => {
                       this._tempDate = e.detail.value;
-                      if (e.detail.autoNext && this.hasTime) {
-                        this._step = 'time';
-                    }
-                  }}
+                    }}
                   ></date-picker-step>
                 `
               : html`
@@ -65,8 +80,9 @@ export class DateTimeDialog extends LitElement {
                 `}
           </div>
 
+          <!-- Button Row with Top Separator -->
           <div class="button-row">
-            ${isBoth && this._step === 'time'
+            ${isBoth && !isDateStep
               ? html`
                   <button class="btn btn-secondary" @click=${() => (this._step = 'date')}>
                     Back
@@ -78,17 +94,12 @@ export class DateTimeDialog extends LitElement {
                   </button>
                 `}
 
-            ${isBoth && this._step === 'date'
-              ? html`
-                  <button class="btn btn-primary" @click=${() => (this._step = 'time')}>
-                    Next
-                  </button>
-                `
-              : html`
-                  <button class="btn btn-primary" @click=${this._save}>
-                    Save
-                  </button>
-                `}
+            <button
+              class="btn btn-primary"
+              @click=${isBoth && isDateStep ? () => (this._step = 'time') : this._save}
+            >
+              ${primaryLabel}
+            </button>
           </div>
         </div>
       </ha-adaptive-dialog>
