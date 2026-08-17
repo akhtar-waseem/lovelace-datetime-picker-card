@@ -21,9 +21,9 @@
     "lint": "eslint src/*.ts",
     "rollup": "rollup -c --bundleConfigAsCjs",
     "test": "jest",
-    "release-patch": "npm version patch && git push origin master --tags",
-    "release-minor": "npm version minor && git push origin master --tags",
-    "release-major": "npm version major && git push origin master --tags",
+    "release-patch": "npm version patch && git push github develop --tags",
+    "release-minor": "npm version minor && git push github develop --tags",
+    "release-major": "npm version major && git push github develop --tags",
     "start:ha": "docker run --rm -p9124:8123 -v $(pwd)/devtools/homeassistant:/config homeassistant/home-assistant:latest"
   },
   "dependencies": {
