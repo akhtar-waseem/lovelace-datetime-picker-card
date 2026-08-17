@@ -41,7 +41,11 @@ resources:
 
 DateTime Picker Card supports Lovelace's Visual Editor. Click the **+** button to add a card, search for **DateTime Picker Card**, and use the graphical interface to configure options under **Display & Formatting** and **Actions**.
 
-## Examples
+- Demo of setting up the card: [UI Configuration](https://github.com/akhtar-waseem/lovelace-datetime-picker-card/blob/main/examples/date-time-card-configuration-in-visual-editor.gif)
+
+## Configuration Examples
+
+- Demo of selecting date and time: [Date/Time/DateTime Selection](https://github.com/akhtar-waseem/lovelace-datetime-picker-card/blob/main/examples/date-time-card-in-action.gif)
 
 ### Standard Setup
 
@@ -80,6 +84,54 @@ hold_action:
   action: more-info
 ```
 
+### Date & Time with Custom Icon and Name and Hold action
+
+```yaml
+type: custom:datetime-picker-card
+entity: input_datetime.test_date_time
+name: Custom Name
+icon: mdi:airplane-clock
+hour_mode: '24'
+date_format: MMMM D, YYYY
+show_relative: true
+show_quick_now: true
+hold_action:
+  action: more-info
+double_tap_action:
+  action: none
+```
+
+### Date Only with Double Tap and Hold Action
+
+```yaml
+type: custom:datetime-picker-card
+entity: input_datetime.test_date_only
+hour_mode: '12'
+date_format: default
+show_relative: true
+show_quick_now: true
+double_tap_action:
+  action: perform-action
+  perform_action: input_boolean.toggle
+  target:
+    entity_id: input_boolean.toggle_test
+  data: {}
+hold_action:
+  action: more-info
+```
+
+### Time Only with No extra actions
+
+```yaml
+type: custom:datetime-picker-card
+entity: input_datetime.test_time_only
+name: Time Only
+hour_mode: '24'
+date_format: default
+show_relative: true
+show_quick_now: true
+```
+
 ## Options
 
 | Name | Type | Requirement | Description | Default |
@@ -109,19 +161,20 @@ This card automatically adapts to your active Home Assistant theme. To customize
 ## Meta
 
 **Waseem Akhtar**
-- [![GitHub][github-icon]][github-link] [akhtar-waseem][github-link]
+- [![GitHub][github-icon]][github-icon] [akhtar-waseem][github-link]
 
 
+[github-icon]: https://raw.githubusercontent.com/primer/octicons/main/icons/mark-github-16.svg
 [hacs-shield]: https://img.shields.io/badge/HACS-Default-brightgreen.svg
 [hacs-link]: https://github.com/hacs/integration
 [downloads-shield]: https://img.shields.io/github/downloads/akhtar-waseem/lovelace-datetime-picker-card/latest/total?color=brightgreen&logo=github
 [downloads-link]: https://github.com/akhtar-waseem/lovelace-datetime-picker-card/releases
-[releases-shield]: https://img.shields.io/github/release/akhtar-waseem/lovelace-datetime-picker-card.svg
+[releases-shield]: https://img.shields.io/github/v/release/akhtar-waseem/lovelace-datetime-picker-card
 [releases-link]: https://github.com/akhtar-waseem/lovelace-datetime-picker-card/releases
 [ci-shield]: https://img.shields.io/github/actions/workflow/status/akhtar-waseem/lovelace-datetime-picker-card/ci.yml?branch=main&label=CI&logo=github
 [ci-link]: https://github.com/akhtar-waseem/lovelace-datetime-picker-card/actions
 [maintenance-shield]: https://img.shields.io/badge/maintained-yes-brightgreen.svg
 [maintenance-link]: https://github.com/akhtar-waseem/lovelace-datetime-picker-card
-[license-shield]: https://img.shields.io/github/license/akhtar-waseem/lovelace-datetime-picker-card?color=brightgreen
+[license-shield]: https://img.shields.io/github/license/akhtar-waseem/lovelace-datetime-picker-card
 [license-link]: https://github.com/akhtar-waseem/lovelace-datetime-picker-card/blob/main/LICENSE
 [github-link]: https://github.com/akhtar-waseem/

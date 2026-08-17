@@ -70,3 +70,12 @@
 .btn-primary:hover {
   filter: brightness(1.1);
 }
+
+.message {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--primary-text-color);
+  margin: 0;
+  padding: 8px 0;
+}

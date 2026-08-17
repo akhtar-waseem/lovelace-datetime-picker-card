@@ -266,3 +266,32 @@ export class DateTimePickerCard extends LitElement {
     );
   }
 }
+
+window.customCards = window.customCards || [];
+window.customCards.push({
+  type: "datetime-picker-card",
+  name: "DateTime Picker Card",
+  description: "A Material 3 styled date and time picker card.",
+  preview: true,
+  /**
+   * Suggest datetime-picker-card for input_datetime entities.
+   * 
+   * @param _hass 
+   * @param entityId 
+   * @returns 
+   */
+  getEntitySuggestion: (_hass: unknown, entityId: string) => {
+    const domain = entityId.split(".")[0];
+
+    if (domain !== "input_datetime") {
+      return null;
+    }
+
+    return {
+      config: {
+        type: "custom:datetime-picker-card",
+        entity: entityId,
+      },
+    };
+  },
+});

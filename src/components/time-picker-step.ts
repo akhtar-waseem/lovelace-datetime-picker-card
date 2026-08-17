@@ -41,54 +41,68 @@ export class TimePickerStep extends LitElement {
     );
   }
 
-  private _handlePointerMove(e: PointerEvent): void {
-    if (!this._isDragging && e.type !== 'pointerdown') return;
+private _handlePointerMove(e: PointerEvent): void {
+  if (!this._isDragging && e.type !== 'pointerdown') return;
 
-    const dial = this.shadowRoot?.querySelector('.clock-dial') as HTMLElement;
-    if (!dial) return;
+  // Stop move events from reaching parent modal listeners
+  e.stopPropagation();
 
-    const rect = dial.getBoundingClientRect();
-    const radius = rect.width / 2;
-    const centerX = rect.left + radius;
-    const centerY = rect.top + radius;
+  const dial = this.shadowRoot?.querySelector('.clock-dial') as HTMLElement;
+  if (!dial) return;
 
-    const x = e.clientX - centerX;
-    const y = e.clientY - centerY;
+  const rect = dial.getBoundingClientRect();
+  const radius = rect.width / 2;
+  const centerX = rect.left + radius;
+  const centerY = rect.top + radius;
 
-    // Distance ratio relative to clock radius (0.0 at center, 1.0 at outer edge)
-    const distanceRatio = Math.sqrt(x * x + y * y) / radius;
+  const x = e.clientX - centerX;
+  const y = e.clientY - centerY;
 
-    let deg = Math.atan2(y, x) * (180 / Math.PI) + 90;
-    if (deg < 0) deg += 360;
+  const distanceRatio = Math.sqrt(x * x + y * y) / radius;
 
-    if (this._mode === 'hours') {
-      const step = Math.round(deg / 30) % 12;
-      const isInnerRing = distanceRatio < 0.61;
+  let deg = Math.atan2(y, x) * (180 / Math.PI) + 90;
+  if (deg < 0) deg += 360;
 
-      this._selectedHour = isInnerRing ? step + 12 : step;
-    } else {
-      let minute = Math.round(deg / 6);
-      if (minute === 60) minute = 0;
-      this._selectedMinute = minute;
-    }
+  if (this._mode === 'hours') {
+    const step = Math.round(deg / 30) % 12;
+    const isInnerRing = distanceRatio < 0.61;
 
-    this._notifyChange();
+    this._selectedHour = isInnerRing ? step + 12 : step;
+  } else {
+    let minute = Math.round(deg / 6);
+    if (minute === 60) minute = 0;
+    this._selectedMinute = minute;
   }
 
+  this._notifyChange();
+}
+
   private _onPointerDown(e: PointerEvent): void {
+    e.stopPropagation();
     this._isDragging = true;
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    const target = e.currentTarget as HTMLElement;
+    if (target && target.setPointerCapture) {
+      target.setPointerCapture(e.pointerId);
+    }
     this._handlePointerMove(e);
   }
 
-  private _onPointerUp(): void {
+  private _onPointerUp(e: PointerEvent): void {
+    e.stopPropagation();
+
     if (this._isDragging) {
       this._isDragging = false;
+
+      const target = e.currentTarget as HTMLElement;
+      if (target && target.hasPointerCapture && target.hasPointerCapture(e.pointerId)) {
+        target.releasePointerCapture(e.pointerId);
+      }
+
       if (this._mode === 'hours') {
         this._mode = 'minutes';
       }
-    }
   }
+}
 
   render(): TemplateResult {
     const displayHour = String(this._selectedHour).padStart(2, '0');
@@ -143,6 +157,8 @@ export class TimePickerStep extends LitElement {
           @pointerdown=${this._onPointerDown}
           @pointermove=${this._handlePointerMove}
           @pointerup=${this._onPointerUp}
+          @touchstart=${(e: TouchEvent) => e.stopPropagation()}
+          @touchmove=${(e: TouchEvent) => e.stopPropagation()}
         >
           <!-- Vector Clock Pointer Hand -->
           <svg class="clock-svg" viewBox="0 0 200 200">

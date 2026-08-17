@@ -67,6 +67,17 @@
   touch-action: none;
   overflow: hidden;
   box-sizing: border-box;
+
+  /* Fixes the transient square tap highlight and focus box */
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.clock-dial:focus,
+.clock-dial:active,
+.clock-dial:focus-visible {
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Vector SVG Layer for Pointer Hand */
