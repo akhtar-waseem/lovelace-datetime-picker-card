@@ -3,7 +3,7 @@
   width: 100%;
 }
 
-ha-dialog {
+ha-adaptive-dialog {
   --dialog-content-padding: 16px 16px 16px 16px;
 }
 

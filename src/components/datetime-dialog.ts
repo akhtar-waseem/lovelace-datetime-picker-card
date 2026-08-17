@@ -35,7 +35,7 @@ export class DateTimeDialog extends LitElement {
     const isBoth = this.hasDate && this.hasTime;
 
     return html`
-      <ha-dialog
+      <ha-adaptive-dialog
         open
         width="small"
         @closed=${this._handleHaDialogClosed}
@@ -91,7 +91,7 @@ export class DateTimeDialog extends LitElement {
                 `}
           </div>
         </div>
-      </ha-dialog>
+      </ha-adaptive-dialog>
     `;
   }
 
